@@ -6,7 +6,12 @@
 int scale = 1;
 String typeInt =((Object)scale).getClass().getSimpleName();
 int degree = 0;
-
+boolean enter  = false;
+String nombre = "";
+boolean positif = true;
+int sizeP = 6;
+int sizeC = 10;
+boolean mode = true; 
  
 void setup(){
   //noLoop();
@@ -29,7 +34,7 @@ PShape cube(int r, int red, int green, int blue){
   return cube;
 }
 
-polynome p = new polynome(new int[]{1,0,3});
+polynome p = new polynome(new int[]{1,1,1});
 
 class polynome{
   private ArrayList<Integer> corps;
@@ -43,7 +48,7 @@ class polynome{
     if(i<this.corps.size()){
       this.corps.set(i,x);
     }else{
-      int bound = i-this.corps.size();
+      int bound = i-this.corps.size()+1;
       for(int j = 0; j<bound;j++){
         if(j==bound-1){
           this.corps.add(x);
@@ -66,7 +71,7 @@ class polynome{
       if(a==0){
         return "";
       }else {
-        return Integer.toString(abs(a));
+        return Integer.toString(a);
       }
     }else{
       if(a == 0){
@@ -219,7 +224,18 @@ void draw(){
   fill(0,0,0);
   textSize(20);
   text(p.toString(),20,40);
-  text("degrée sélectionné : " + Integer.toString(degree),20,80);
+  text("degrée sélectionnée (changer avec droite et gauche) : " + Integer.toString(degree),20,80);
+  text("entrée : " + String.valueOf(enter),20,110);
+  if(positif){
+    text("signe (cliquer sur + ou -) : +",20,130);
+  }else{
+    text("signe (cliquer sur + ou -) : -",20,130);
+  }
+  if(mode){
+    text("mode : taillePyramide (cliquer sur m) ",20,150);
+  }else{
+    text("mode : tailleCube (cliquer sur m)",20,150);
+  }
   popMatrix();
   
   translate(width/2,height/2);
@@ -228,7 +244,7 @@ void draw(){
   rotateZ(PI/4);
   //rotateY(PI/4);
   int count = 1;
-  draw3DPyramide(10,20,count);
+  draw3DPyramide(sizeP,sizeC,count);
   
 
     
@@ -239,14 +255,52 @@ void draw(){
 }
 
 void keyPressed() {
+  print(keyCode);
+ 
+  
   if(key!=CODED){
-    System.out.println(typeInt);
-    
-    if(((Object) keyCode).getClass().getSimpleName() == typeInt){
-        print(keyCode);
-        p.setMonome(degree,keyCode);
+    if(keyCode == 59){
+      if(mode){
+        mode = false;
+      }else{
+        mode = true;
       }
+    }
+    if(keyCode == 139){
+      positif = true;
+    }
+    if(keyCode == 140){
+        positif = false;
+      }
+    if(!enter){
+      for(int i = 0;i<10;i++){
+        if(keyCode == 128 +i){
+          if(positif)p.setMonome(degree,i);
+          else p.setMonome(degree,0-i);
+        }
+      }
+      if(keyCode == 10){
+          enter = true;
+      }
+    }else{
+      for(int i = 0;i<10;i++){
+        if(keyCode == 128 +i){
+          nombre += Integer.toString(i);
+        }
+      }
+      if(keyCode == 10){
+        enter = false;
+        if(positif&&nombre!="")p.setMonome(degree,Integer.parseInt(nombre));
+        else if(!positif && nombre!="") p.setMonome(degree,0-Integer.parseInt(nombre));
+        nombre ="";
+      }
+      
+    }
+  
+    
+    
   }
+  
   else{
     
     if(keyCode == LEFT){
@@ -254,7 +308,16 @@ void keyPressed() {
     }if(keyCode == RIGHT){
       degree++;
     }
+    if(keyCode == UP){
+      if(mode)sizeP++;
+      else sizeC++;
+    }
+    if(keyCode==DOWN){
+      if(mode && sizeP>0)sizeP--;
+      else if(!mode && sizeC>0)sizeC--;
+    }
     
   }
+  
   
 }

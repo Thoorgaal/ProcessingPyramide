@@ -1,9 +1,20 @@
- ArrayList<PShape> ShapeTable;
+ import java.util.Scanner;
  
+ 
+ ArrayList<PShape> ShapeTable;
+  
 int scale = 1;
+String typeInt =((Object)scale).getClass().getSimpleName();
+int degree = 0;
+boolean enter  = false;
+String nombre = "";
+boolean positif = true;
+int sizeP = 6;
+int sizeC = 10;
+boolean mode = true; 
  
 void setup(){
-  noLoop();
+  //noLoop();
   ShapeTable = new ArrayList<PShape>();
   
   background(255,255,255);
@@ -23,7 +34,7 @@ PShape cube(int r, int red, int green, int blue){
   return cube;
 }
 
-polynome p = new polynome(new int[]{1,-2,3});
+polynome p = new polynome(new int[]{1,1,1});
 
 class polynome{
   private ArrayList<Integer> corps;
@@ -31,6 +42,20 @@ class polynome{
     this.corps = new ArrayList<Integer>();
     for(int i = 0;i<c.length;i++){
       this.corps.add(c[i]);
+    }
+  }
+  public void setMonome(int i,int x){
+    if(i<this.corps.size()){
+      this.corps.set(i,x);
+    }else{
+      int bound = i-this.corps.size()+1;
+      for(int j = 0; j<bound;j++){
+        if(j==bound-1){
+          this.corps.add(x);
+        }else{
+          this.corps.add(0);
+       }
+      }
     }
   }
    public int calcul(int x ){
@@ -41,24 +66,47 @@ class polynome{
     }
     return b;
   }
+  private  String getMonome(int i, int a){
+    if(i==0){
+      if(a==0){
+        return "";
+      }else {
+        return Integer.toString(a);
+      }
+    }else{
+      if(a == 0){
+        return "";
+      }else if(a==1){
+        return "X^" + Integer.toString(i);
+      }else{
+        return Integer.toString(abs(a)) + "X^" + Integer.toString(i);
+      }
+    }
+  }
+  private String getOp(int a){
+    if(a<0){
+      return "-";
+    }else if(a>0){
+      return "+";
+    }else{
+      return "";
+    }
+  }
   public String toString(){
     String b ="";
-    for(int i = 0; i<this.corps.size();i++){
-      int a = this.corps.get(i);
-      if(i==0){
-        if(a!=1 && a != 0)b+= Integer.toString(a) + "X + ";
-        else if(a==1) b+= "X + ";
+    int a = this.corps.get(0);
+    for(int i =0; i<this.corps.size();i++){
+      
+      b+=this.getMonome(i,a);
+      if(i<this.corps.size()-1){
+        a = this.corps.get(i+1);
+        b+= this.getOp(a);
       }
-      if(i<this.corps.size() -1){
-       if(a!=1 && a!=0) b+=  Integer.toString(a) + "X^" + Integer.toString(i) + " + "  ;
-       else if(a == 1)  b+= "X^" + Integer.toString(i) + " + "  ;
-      }
-      else{
-        if(a!=0 && a!=1)b+=  Integer.toString(this.corps.get(i)) + "X^" + Integer.toString(i);
-        else if(a==1) b+="X^" + Integer.toString(i);
-      }
-  }
+    }
   return b;
+  }
+  public int degre(){
+    return this.corps.size() -1;
   }
 }
 
@@ -176,18 +224,100 @@ void draw(){
   fill(0,0,0);
   textSize(20);
   text(p.toString(),20,40);
+  text("degrée sélectionnée (changer avec droite et gauche) : " + Integer.toString(degree),20,80);
+  text("entrée : " + String.valueOf(enter),20,110);
+  if(positif){
+    text("signe (cliquer sur + ou -) : +",20,130);
+  }else{
+    text("signe (cliquer sur + ou -) : -",20,130);
+  }
+  if(mode){
+    text("mode : taillePyramide (cliquer sur m) ",20,150);
+  }else{
+    text("mode : tailleCube (cliquer sur m)",20,150);
+  }
   popMatrix();
   
   translate(width/2,height/2);
+  //rotateX(frameCount/6.0);
   rotateX(PI/2);
   rotateZ(PI/4);
   //rotateY(PI/4);
   int count = 1;
-  draw3DPyramide(10,20,count);
+  draw3DPyramide(sizeP,sizeC,count);
   
-    System.out.println(sd(28));
+
+    
   
   
   
  
+}
+
+void keyPressed() {
+  print(keyCode);
+ 
+  
+  if(key!=CODED){
+    if(keyCode == 59){
+      if(mode){
+        mode = false;
+      }else{
+        mode = true;
+      }
+    }
+    if(keyCode == 139){
+      positif = true;
+    }
+    if(keyCode == 140){
+        positif = false;
+      }
+    if(!enter){
+      for(int i = 0;i<10;i++){
+        if(keyCode == 128 +i){
+          if(positif)p.setMonome(degree,i);
+          else p.setMonome(degree,0-i);
+        }
+      }
+      if(keyCode == 10){
+          enter = true;
+      }
+    }else{
+      for(int i = 0;i<10;i++){
+        if(keyCode == 128 +i){
+          nombre += Integer.toString(i);
+        }
+      }
+      if(keyCode == 10){
+        enter = false;
+        if(positif&&nombre!="")p.setMonome(degree,Integer.parseInt(nombre));
+        else if(!positif && nombre!="") p.setMonome(degree,0-Integer.parseInt(nombre));
+        nombre ="";
+      }
+      
+    }
+  
+    
+    
+  }
+  
+  else{
+    
+    if(keyCode == LEFT){
+      if(degree>0)degree--;
+    }if(keyCode == RIGHT){
+      degree++;
+    }
+    if(keyCode == UP){
+      if(mode)sizeP++;
+      else sizeC++;
+    }
+    if(keyCode==DOWN){
+      if(mode && sizeP>0)sizeP--;
+      else if(!mode && sizeC>0)sizeC--;
+    }
+    
+  }
+  
+  
 }

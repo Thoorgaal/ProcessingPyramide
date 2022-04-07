@@ -1,8 +1,8 @@
  import java.util.Scanner;
  
  
- ArrayList<PShape> ShapeTable;
-  
+PGraphics pg = new PGraphics();;
+PShape pyramide = new PShape();
 int scale = 1;
 String typeInt =((Object)scale).getClass().getSimpleName();
 int degree = 0;
@@ -10,31 +10,65 @@ boolean enter  = false;
 String nombre = "";
 boolean positif = true;
 int sizeP = 6;
-int sizeC = 10;
+int sizeC = 20;
 boolean mode = true; 
- 
+PFont police;
 void setup(){
   //noLoop();
-  ShapeTable = new ArrayList<PShape>();
+  
   
   background(255,255,255);
   size(1080,720,P3D);
-  ShapeTable.add(cube(6,100,0,0));
+  police = loadFont("ArialMT-48.vlw");
   
   
 }
+public enum ModeNombre{
+PREMIER,PARFAIT,ABONDANT,DEGENERE,UN;
+  public int[] getC(){
+    switch(this){
+      case PREMIER:
+        return new int[]{255,0,0};
+      case PARFAIT:
+        return new int[]{  0,255,0};
+       case ABONDANT:
+         return new int[]{ 0,0,255};
+         
+      case DEGENERE:
+       return new int[]{ 227,34,163};
+      case UN:
+         return new int[]{0,0,0};
+      default:
+        return new int[]{0,0,0};
+        
+    }
+  }
+}
 
-PShape cube(int r, int red, int green, int blue){
+
+PShape cube(int r, int red, int green, int blue,int i){
   PShape cube = createShape();
   beginShape();
   fill(red,green,blue);
    box(r);
-  
+   pushMatrix();
+   translate(25*r,r);
+    pg = createGraphics(r,r);
+  pg.beginDraw();
+ 
+  pg.background(0,0,0,-200);
+  pg.textSize(60);
+  pg.textFont(police);
+  pg.fill(0,0,0);
+  pg.text("BITE",10,0);
+  pg.endDraw();
+  popMatrix();
   endShape();
+  
   return cube;
 }
 
-polynome p = new polynome(new int[]{1,1,1});
+polynome p = new polynome(new int[]{0,1,0});
 
 class polynome{
   private ArrayList<Integer> corps;
@@ -62,7 +96,7 @@ class polynome{
     
      int b = 0;
     for(int i = 0; i< this.corps.size(); i++){
-      b+= this.corps.get(i)*pow(x,i+1);
+      b+= this.corps.get(i)*pow(x,i);
     }
     return b;
   }
@@ -125,21 +159,23 @@ int sd(int a){
 }
 
 int[] getColor(int i){
+  ModeNombre m;
   i = p.calcul(i);
   int x = sd(i);
   if(x==1){
-    return new int[]{0,0,0};
+    m = ModeNombre.UN;
   }
   if(x == i+1){
-    System.out.println(i);
-    return new int[]{88,214,141};
+    m = ModeNombre.PREMIER;
   }else if(x== 2*i){
-      return new int[]{  203, 67, 53 };
+      m = ModeNombre.PARFAIT;
   }
-  else if(x > 2*i){
-   return new int[]{ 155, 89, 182 };
+  else if(x < 2*i){
+   m = ModeNombre.DEGENERE;
+  }else{
+    m = ModeNombre.ABONDANT;
   }
-  return new int[]{ 231, 76, 60 };
+  return m.getC();
 }
 
 
@@ -148,7 +184,7 @@ void drawICube(int i, int r,int count){
   
   for(int j = 0; j<i;j++){
     int[]  couleur = getColor(count);
-    PShape c = cube(r,couleur[0],couleur[1],couleur[2]);
+    PShape c = cube(r,couleur[0],couleur[1],couleur[2],count);
     count++;
     shape(c);
     if(j!=i-1){
@@ -158,7 +194,7 @@ void drawICube(int i, int r,int count){
   translate(0,-r);
   for(int j = 0; j<i;j++){
     int[]  couleur = getColor(count);
-    PShape c = cube(r,couleur[0],couleur[1],couleur[2]);
+    PShape c = cube(r,couleur[0],couleur[1],couleur[2],count);
     count++;
     shape(c);
     if(j!=i-1){
@@ -169,7 +205,7 @@ void drawICube(int i, int r,int count){
   translate(-r,0);
   for(int j = 0; j<i;j++){
     int[]  couleur = getColor(count);
-    PShape c = cube(r,couleur[0],couleur[1],couleur[2]);
+    PShape c = cube(r,couleur[0],couleur[1],couleur[2],count);
     count++;
     shape(c);
     if(j!=i-1){
@@ -180,7 +216,7 @@ void drawICube(int i, int r,int count){
   translate(0,r);
   for(int j = 0; j<i;j++){
     int[]  couleur = getColor(count);
-    PShape c = cube(r,couleur[0],couleur[1],couleur[2]);
+    PShape c = cube(r,couleur[0],couleur[1],couleur[2],count);
     count++;
     shape(c);
     if(j!=i-1){
@@ -195,7 +231,7 @@ void draw2DPyramide(int c, int r,int count){
   pushMatrix();
   if(c==0){
     int[]  couleur = getColor(count);
-    PShape cube = cube(r,couleur[0],couleur[1],couleur[2]);
+    PShape cube = cube(r,couleur[0],couleur[1],couleur[2],count);
     count++;
     shape(cube);
   }
@@ -207,7 +243,7 @@ void draw2DPyramide(int c, int r,int count){
 void draw3DPyramide(int c, int r,int count){
   pushMatrix();
   count++;
-  cube(r,0,0,0);
+  cube(r,90,46,46,1);
   translate(r/2,r/2,-r);
   for(int i = 2;i<c+2;i++){
     draw2DPyramide(i,r,count);
@@ -239,14 +275,21 @@ void draw(){
   popMatrix();
   
   translate(width/2,height/2);
-  //rotateX(frameCount/6.0);
-  rotateX(PI/2);
-  rotateZ(PI/4);
-  //rotateY(PI/4);
+  rotateX(frameCount/60.0);
+  //rotateX(PI/2);
+  //rotateZ(PI/4);
+ 
+  rotateZ(frameCount/60.0);
   int count = 1;
-  draw3DPyramide(sizeP,sizeC,count);
+   image(pg,0,0);
   
+  draw3DPyramide(sizeP,sizeC,count);
 
+  
+  //cube(40,255,255,255,5);
+  
+ 
+  
     
   
   
@@ -255,9 +298,9 @@ void draw(){
 }
 
 void keyPressed() {
-  print(keyCode);
+
  
-  
+  //controle pyramide et sa taille  
   if(key!=CODED){
     if(keyCode == 59){
       if(mode){

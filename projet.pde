@@ -1,7 +1,7 @@
  import java.util.Scanner;
  
  
-PGraphics pg = new PGraphics();;
+PGraphics pg = new PGraphics();
 PShape pyramide = new PShape();
 int scale = 1;
 String typeInt =((Object)scale).getClass().getSimpleName();
@@ -19,6 +19,7 @@ void setup(){
   
   background(255,255,255);
   size(1080,720,P3D);
+  pg = createGraphics(width,height);
   police = loadFont("ArialMT-48.vlw");
   
   
@@ -49,19 +50,12 @@ PREMIER,PARFAIT,ABONDANT,DEGENERE,UN;
 PShape cube(int r, int red, int green, int blue,int i){
   PShape cube = createShape();
   beginShape();
+  pg.fill(0,0,0,0);
   fill(red,green,blue);
    box(r);
    pushMatrix();
    translate(25*r,r);
-    pg = createGraphics(r,r);
-  pg.beginDraw();
- 
-  pg.background(0,0,0,-200);
-  pg.textSize(60);
-  pg.textFont(police);
-  pg.fill(0,0,0);
-  pg.text("BITE",10,0);
-  pg.endDraw();
+   
   popMatrix();
   endShape();
   
@@ -281,12 +275,15 @@ void draw(){
  
   rotateZ(frameCount/60.0);
   int count = 1;
-   image(pg,0,0);
-  
-  draw3DPyramide(sizeP,sizeC,count);
+  pg.beginDraw();
 
+   
+  draw3DPyramide(sizeP,sizeC,count);
+    //cube(40,255,255,255,5);
+  pg.endDraw();
+  //image(pg,0,0);
   
-  //cube(40,255,255,255,5);
+
   
  
   
